@@ -16,10 +16,10 @@ function App() {
   const [collapsedOverworlds, setCollapsedOverworlds] = useState({});
   const [collapsedAreas, setCollapsedAreas] = useState({});
   const [collapsedCategories, setCollapsedCategories] = useState({
-    Weapons: true,
-    Armor: true,
-    Jewelry: true,
-    Others: true,
+    Weapons: new Array(4).fill(true),
+    Armor: new Array(4).fill(true),
+    Jewelry: new Array(4).fill(true),
+    Others: new Array(4).fill(true),
   });
   const [characterNames, setCharacterNames] = useState({
     char1: "Character 1",
@@ -64,14 +64,19 @@ function App() {
     setFoundItems((prev) => ({ ...prev, [itemName]: !prev[itemName] }));
   };
 
-  const toggleCategoryCollapse = (catTitle) => {
-    setCollapsedCategories((prev) => ({ ...prev, [catTitle]: !prev[catTitle] }));
+  const toggleCategoryCollapse = (catTitle, key) => {
+    setCollapsedCategories((prev) => ({
+      ...prev,
+      [catTitle]: prev[catTitle].map((val, i) =>
+        i === key ? false : val
+      ),
+    }));
   };
 
   const collapseAllCategories = () => {
     const allCollapsed = {};
     categoryGroups.forEach((g) => {
-      allCollapsed[g.title] = true;
+      allCollapsed[g.title] = new Array(g.items.length).fill(true);
     });
     setCollapsedCategories(allCollapsed);
   };
@@ -116,7 +121,7 @@ function App() {
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {["char1", "char2", "char3", "char4"].map((charKey) => (
+        {["char1", "char2", "char3", "char4"].map((charKey, index) => (
           <div key={charKey} className="flex flex-col gap-2">
             {/* Character Name */}
             <input
@@ -157,13 +162,13 @@ function App() {
             </button>
 
             {/* Categories */}
-            {categoryGroups.map((group) => (
+            {categoryGroups.map((group, catIndex) => (
               <div key={group.title} className="mb-2">
                 <h3
                   className="font-semibold flex items-center cursor-pointer text-indigo-300 mb-1"
-                  onClick={() => toggleCategoryCollapse(group.title)}
+                  onClick={() => toggleCategoryCollapse(group.title, index)}
                 >
-                  {collapsedCategories[group.title] ? (
+                  {collapsedCategories[group.title[catIndex]] ? (
                     <ChevronRight className="mr-2" size={16} />
                   ) : (
                     <ChevronDown className="mr-2" size={16} />
@@ -171,7 +176,7 @@ function App() {
                   {group.title}
                 </h3>
 
-                {!collapsedCategories[group.title] && (
+                {!collapsedCategories[group.title[catIndex]] && (
                   <div className="flex flex-col gap-2">
                     {group.cats.map((category) => (
                       <CategorySelector
@@ -494,3 +499,6 @@ function InventoryGridWithIcons({ charKey, selectedItems, foundItems }) {
 }
 
 export default App;
+
+
+
